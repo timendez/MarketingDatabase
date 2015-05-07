@@ -3,7 +3,6 @@
 # On unix12 use python3
 
 import csv
-import os
 # import mysql.connector
 
 def init(table):
@@ -41,25 +40,37 @@ def handle_email(data):
 
 
 
-# Open files
+# Open files, key=TableName
 files = {
-    'DeviceModels': open('DB-build-DeviceModels.sql', 'w+')
+    'Customers'         : open('build/DB-build-Customers.sql', 'w+'),
+    'EmailAddresses'    : open('build/DB-build-EmailAddresses.sql', 'w+'),
+    'EmailMessages'     : open('build/DB-build-EmailMessages.sql', 'w+'),
+    'EventTypes'        : open('build/DB-build-EventTypes.sql', 'w+'),
+    'Events'            : open('build/DB-build-Events.sql', 'w+'),
+    'Links'             : open('build/DB-build-Links.sql', 'w+'),
+    'EventLinkLookUp'   : open('build/DB-build-EventLinkLookUp.sql', 'w+'),
+    'DeviceModels'      : open('build/DB-build-DeviceModels.sql', 'w+'),
+    'Devices'           : open('build/DB-build-Devices.sql', 'w+'),
+    'Purchases'         : open('build/DB-build-Purchases.sql', 'w+'),
+    'Registrations'     : open('build/DB-build-Registrations.sql', 'w+')
 }
 
-for f in files:
+# Initialize files with "INSERT INTO TableName VALUES"
+for f in files.keys():
     init(f)
 
+# Parse the CSV files provided by customer
 parse('data/CP_Account.csv', handle_account)
 parse('data/CP_Device.csv', handle_device)
 parse('data/CP_Device_Model.csv', handle_device_model)
 parse('data/CP_Email_Final.csv', handle_email)
 
-# Close files
-for f in files:
-    files[f].seek(files[f].tell()-3)
-    files[f].write(';\n')
-    files[f].truncate()
-    files[f].close()
+# End files with ; before closing
+for f in files.values():
+    f.seek(f.tell() - 3)
+    f.write(';\n')
+    f.truncate()
+    f.close()
 
 # try:
 #     conn = mysql.connector.connect(user='', password='',
