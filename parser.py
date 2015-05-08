@@ -57,13 +57,10 @@ def handle_account(data):
 def handle_device(data):
     # Devices
     if data['SerialNumber']:
-        Device = data['SerialNumber']
-        if Device not in pk['Devices']:
-            insert_values('Devices', [
-                to_string(data['SerialNumber']),
-                to_string(data['DeviceModel'])
-                ])
-            pk['Devices'].add(Device)
+        insert_values('Devices', [
+            to_string(data['SerialNumber']),
+            to_string(data['DeviceModel'])
+            ])
 
     # Purchases
     Purchase = (data['CustomerID'], data['DeviceModel'])

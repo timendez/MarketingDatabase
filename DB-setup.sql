@@ -16,7 +16,7 @@ EmailID INT,
 EmailDomain VARCHAR(64) NOT NULL,
 CustomerID INT NOT NULL,
 CONSTRAINT PK_EmailID PRIMARY KEY (EmailID),
-CONSTRAINT FK_CustomerID FOREIGN KEY (CustomerID) 
+CONSTRAINT FK_CustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID)
 );
 
@@ -29,7 +29,7 @@ EmailID INT NOT NULL,
 DeploymentID INT NOT NULL,
 CampaignName VARCHAR(64) NOT NULL,
 CONSTRAINT PK_EmailMessageID PRIMARY KEY (EmailMessageID),
-CONSTRAINT FK_EmailID FOREIGN KEY (EmailID) 
+CONSTRAINT FK_EmailID FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID)
 );
 
@@ -47,7 +47,7 @@ EmailMessageID BIGINT,
 CONSTRAINT PK_Events PRIMARY KEY (EmailID, EmailMessageID, EventTypeID),
 CONSTRAINT FK_EventType FOREIGN KEY (EventTypeID)
 REFERENCES EventTypes(EventTypeID),
-CONSTRAINT FK_Emails FOREIGN KEY (EmailID) 
+CONSTRAINT FK_Emails FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID),
 CONSTRAINT FK_EmailMessages FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages(EmailMessageID)
@@ -58,7 +58,7 @@ LinkName VARCHAR(64),
 LinkURL VARCHAR(128),
 EmailMessageID BIGINT,
 CONSTRAINT PK_Links PRIMARY KEY (LinkName, LinkURL, EmailMessageID),
-CONSTRAINT FK_Links FOREIGN KEY (EmailMessageID) 
+CONSTRAINT FK_Links FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages (EmailMessageID)
 );
 
@@ -69,9 +69,9 @@ EmailMessageID BIGINT,
 EmailID INT,
 EventTypeID INT,
 CONSTRAINT PK_EventLinkLookUp PRIMARY KEY (EmailID, EmailMessageID, EventTypeID, LinkName, LinkURL),
-CONSTRAINT FK_EventLinkLookUpEA FOREIGN KEY (EmailID) 
+CONSTRAINT FK_EventLinkLookUpEA FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID),
-CONSTRAINT FK_EventLinkLookUpEM FOREIGN KEY (EmailMessageID) 
+CONSTRAINT FK_EventLinkLookUpEM FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages(EmailMessageID),
 CONSTRAINT FK_EventLookUpLink FOREIGN KEY (LinkName, LinkURL)
 REFERENCES Links(LinkName, LinkURL),
@@ -88,9 +88,10 @@ CONSTRAINT PK_DeviceModel PRIMARY KEY (DeviceModel)
 );
 
 CREATE TABLE Devices(
+DeviceId INT AUTO_INCREMENT,
 SerialNumber VARCHAR(64),
 DeviceModel VARCHAR(64) NOT NULL,
-CONSTRAINT PK_SerialNumber PRIMARY KEY (SerialNumber),
+CONSTRAINT PK_DeviceId PRIMARY KEY (DeviceId),
 CONSTRAINT FK_DeviceModel FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
 );
@@ -103,13 +104,13 @@ PurchaseStoreState CHAR(2),
 ECommFlag BOOLEAN,
 CustomerID INT,
 SerialNumber VARCHAR(64),
-DeviceModel VARCHAR(64) NOT NULL, 
+DeviceModel VARCHAR(64) NOT NULL,
 CONSTRAINT PK_CustomerID PRIMARY KEY (CustomerID, DeviceModel),
-CONSTRAINT FK_PurchasesCustomerID FOREIGN KEY (CustomerID) 
+CONSTRAINT FK_PurchasesCustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID),
-CONSTRAINT FK_PurchasesSerialNumber FOREIGN KEY (SerialNumber) 
+CONSTRAINT FK_PurchasesSerialNumber FOREIGN KEY (SerialNumber)
 REFERENCES Devices(SerialNumber),
-CONSTRAINT FK_PurchasesDeviceModels FOREIGN KEY (DeviceModel) 
+CONSTRAINT FK_PurchasesDeviceModels FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
 );
 
@@ -122,9 +123,9 @@ DeviceModel VARCHAR(64) NOT NULL,
 CustomerID INT,
 SerialNumber VARCHAR(64),
 CONSTRAINT PK_Registrations PRIMARY KEY (RegistrationID),
-CONSTRAINT FK_RegistrationsCustomerID FOREIGN KEY (CustomerID) 
+CONSTRAINT FK_RegistrationsCustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID),
-CONSTRAINT FK_RegistrationsSerialNumber FOREIGN KEY (SerialNumber) 
+CONSTRAINT FK_RegistrationsSerialNumber FOREIGN KEY (SerialNumber)
 REFERENCES Devices(SerialNumber),
 CONSTRAINT FK_RegistrationsDeviceModel FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
