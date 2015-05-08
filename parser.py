@@ -2,8 +2,9 @@
 # mysql-connector-python: http://dev.mysql.com/downloads/connector/python/
 # On unix12 use python3
 
+import sys
 import csv
-# import mysql.connector
+import mysql.connector
 
 
 
@@ -36,7 +37,22 @@ def insert_values(table, data):
 
 
 def handle_account(data):
-    pass
+    # Customers
+    Customer = data['CustomerID']
+    if Customer not in pk['Customers']:
+        insert_values('Customers', [
+            data['CustomerID'],
+            data['RegSourceID'],
+            to_string(data['RegSourceName']),
+            to_string(data['ZIP']),
+            to_string(data['State']),
+            to_string(data['Gender']),
+            to_string(data['IncomeLevel']),
+            data['Permission'],
+            to_string(data['Language']),
+            to_string(data['CustomerTier']),
+            ])
+        pk['Customers'].add(Customer)
 
 def handle_device(data):
     # Devices
@@ -118,15 +134,16 @@ parse('data/CP_Email_Final.csv', handle_email)
 # End files with ; before closing
 for f in files.values():
     f.seek(f.tell() - 3)
-    f.write(';\n')
+    f.write(');\n')
     f.truncate()
     f.close()
 
-# try:
-#     conn = mysql.connector.connect(user='', password='',
-#         host='', database='')
-# except mysql.connector.Error as err:
-#     print(err)
-# else:
-#     main()
-#     conn.close()
+if len(sys.argv) > 1:
+    try:
+        conn = mysql.connector.connect(user='admin', password='admin',
+            host='localhost', database='testing366')
+    except mysql.connector.Error as err:
+        print(err)
+    else:
+        main()
+        conn.close()
