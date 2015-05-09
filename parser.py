@@ -55,7 +55,7 @@ def handle_account(data):
         pk['Customers'].add(Customer)
         
     # EmailAddresses
-    EmailAddress = data['Email Addresses']
+    EmailAddress = data['EmailID']
     if EmailAddress not in pk['EmailAddresses']:
        insert_values('EmailAddresses', [
           to_string(data['EmailID']),
