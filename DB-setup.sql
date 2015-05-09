@@ -1,4 +1,4 @@
-CREATE TABLE Customers (
+CREATE TABLE IF NOT EXISTS Customers (
 CustomerID INT PRIMARY KEY,
 RegSourceID INT,
 RegSourceName VARCHAR(64),
@@ -11,7 +11,7 @@ Language CHAR(2),
 CustomerTier CHAR(3)
 );
 
-CREATE TABLE EmailAddresses (
+CREATE TABLE IF NOT EXISTS EmailAddresses (
 EmailID INT,
 EmailDomain VARCHAR(64) NOT NULL,
 CustomerID INT NOT NULL,
@@ -20,7 +20,7 @@ CONSTRAINT FK_CustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID)
 );
 
-CREATE TABLE EmailMessages (
+CREATE TABLE IF NOT EXISTS EmailMessages (
 EmailMessageID BIGINT AUTO_INCREMENT,
 Audience VARCHAR(64) NOT NULL,
 Version VARCHAR(64) NOT NULL,
@@ -33,13 +33,13 @@ CONSTRAINT FK_EmailID FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID)
 );
 
-CREATE TABLE EventTypes(
+CREATE TABLE IF NOT EXISTS EventTypes(
 EventTypeID INT,
 EventTypeName VARCHAR(64),
 CONSTRAINT PK_EventTypes PRIMARY KEY (EventTypeID)
 );
 
-CREATE TABLE Events (
+CREATE TABLE IF NOT EXISTS Events (
 EventDate DATETIME NOT NULL,
 EventTypeID INT NOT NULL,
 EmailID INT,
@@ -53,7 +53,7 @@ CONSTRAINT FK_EmailMessages FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages(EmailMessageID)
 );
 
-CREATE TABLE Links (
+CREATE TABLE IF NOT EXISTS Links (
 LinkName VARCHAR(64),
 LinkURL VARCHAR(128),
 EmailMessageID BIGINT,
@@ -62,7 +62,7 @@ CONSTRAINT FK_Links FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages (EmailMessageID)
 );
 
-CREATE TABLE EventLinkLookUp(
+CREATE TABLE IF NOT EXISTS EventLinkLookUp(
 LinkName VARCHAR(64),
 LinkURL VARCHAR(128),
 EmailMessageID BIGINT,
@@ -79,7 +79,7 @@ CONSTRAINT FK_EventLinkLookUpET FOREIGN KEY (EventTypeID)
 REFERENCES EventTypes(EventTypeID)
 );
 
-CREATE TABLE DeviceModels (
+CREATE TABLE IF NOT EXISTS DeviceModels (
 DeviceModel VARCHAR(64),
 DeviceName VARCHAR(64),
 DeviceType VARCHAR(64),
@@ -87,46 +87,47 @@ Carrier VARCHAR(64),
 CONSTRAINT PK_DeviceModel PRIMARY KEY (DeviceModel)
 );
 
-CREATE TABLE Devices(
-DeviceId INT AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS Devices(
+DeviceID INT,
 SerialNumber VARCHAR(64),
 DeviceModel VARCHAR(64) NOT NULL,
-CONSTRAINT PK_DeviceId PRIMARY KEY (DeviceId),
+CONSTRAINT PK_DeviceID PRIMARY KEY (DeviceID),
 CONSTRAINT FK_DeviceModel FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
 );
 
-CREATE TABLE Purchases (
+CREATE TABLE IF NOT EXISTS Purchases (
+PurchaseID INT AUTO_INCREMENT,
 PurchaseDate DATETIME,
 PurchaseStoreName VARCHAR(64),
 PurchaseStoreCity VARCHAR(64),
 PurchaseStoreState CHAR(2),
 ECommFlag BOOLEAN,
 CustomerID INT,
-SerialNumber VARCHAR(64),
+DeviceID INT,
 DeviceModel VARCHAR(64) NOT NULL,
-CONSTRAINT PK_CustomerID PRIMARY KEY (CustomerID, DeviceModel),
+CONSTRAINT PK_PurchaseID PRIMARY KEY (PurchaseID),
 CONSTRAINT FK_PurchasesCustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID),
-CONSTRAINT FK_PurchasesSerialNumber FOREIGN KEY (SerialNumber)
-REFERENCES Devices(SerialNumber),
+CONSTRAINT FK_PurchasesDeviceID FOREIGN KEY (DeviceID)
+REFERENCES Devices(DeviceID),
 CONSTRAINT FK_PurchasesDeviceModels FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
 );
 
-CREATE TABLE Registrations (
+CREATE TABLE IF NOT EXISTS Registrations (
 RegistrationDate DATE,
 RegistrationID INT,
 RegistrationSourceID INT,
 RegistrationSourceName VARCHAR(64),
 DeviceModel VARCHAR(64) NOT NULL,
 CustomerID INT,
-SerialNumber VARCHAR(64),
+DeviceID INT,
 CONSTRAINT PK_Registrations PRIMARY KEY (RegistrationID),
 CONSTRAINT FK_RegistrationsCustomerID FOREIGN KEY (CustomerID)
 REFERENCES Customers(CustomerID),
-CONSTRAINT FK_RegistrationsSerialNumber FOREIGN KEY (SerialNumber)
-REFERENCES Devices(SerialNumber),
+CONSTRAINT FK_RegistrationsDeviceID FOREIGN KEY (DeviceID)
+REFERENCES Devices(DeviceID),
 CONSTRAINT FK_RegistrationsDeviceModel FOREIGN KEY (DeviceModel)
 REFERENCES DeviceModels(DeviceModel)
 );

@@ -1,12 +1,7 @@
-# Python 3.4: https://www.python.org/downloads/
-# mysql-connector-python: http://dev.mysql.com/downloads/connector/python/
-# On unix12 use python3
-
 import sys
 import csv
-import mysql.connector
 
-
+ROWS_PER_INSERT = 2000
 
 # Read CSV and send each line to a callback function
 def parse(filename, callback):
@@ -22,19 +17,25 @@ def to_string(value):
 def to_date(value, fmt):
     return 'STR_TO_DATE("%s", "%s")' % (value, fmt)
 
-# If value is not specified, replace with default value
-def if_null(value, default):
-    if len(value) == 0:
-        return default
-    else:
-        return value
-
 # Write dict of values for insert into DB
+# Start a new INSERT statement every 32,000 lines
 def insert_values(table, data):
+    if counts[table] == ROWS_PER_INSERT:
+        end_sql(table)
+        start_sql(table)
+        counts[table] = 0
+    else:
+        counts[table] += 1
     files[table].write('(%s),\n' % ','.join(data))
 
+def start_sql(table):
+    files[table].write('INSERT INTO %s VALUES\n' % table)
 
-
+def end_sql(table):
+    f = files[table]
+    f.seek(f.tell() - 3)
+    f.write(';\n')
+    f.truncate()
 
 def handle_account(data):
     # Customers
@@ -54,28 +55,28 @@ def handle_account(data):
             ])
         pk['Customers'].add(Customer)
 
+device_id = 0
+
 def handle_device(data):
-    # Devices
+    global device_id;
+
+    Device = 'NULL'
+
     if data['SerialNumber']:
-        insert_values('Devices', [
-            to_string(data['SerialNumber']),
-            to_string(data['DeviceModel'])
-            ])
+        Device = str(device_id)
+        device_id += 1
 
     # Purchases
-    Purchase = (data['CustomerID'], data['DeviceModel'])
-    if Purchase not in pk['Purchases']:
-        insert_values('Purchases', [
-            to_date(data['PurchaseDate'], '%m/%d/%Y'),
-            to_string(data['PurchaseStoreName']),
-            to_string(data['PurchaseStoreCity']),
-            to_string(data['PurchaseStoreState']),
-            data['Ecomm'],
-            data['CustomerID'],
-            to_string(data['SerialNumber']),
-            to_string(data['DeviceModel'])
-            ])
-        pk['Purchases'].add(Purchase)
+    insert_values('Purchases', [
+        to_date(data['PurchaseDate'], '%m/%d/%Y'),
+        to_string(data['PurchaseStoreName']),
+        to_string(data['PurchaseStoreCity']),
+        to_string(data['PurchaseStoreState']),
+        data['Ecomm'],
+        data['CustomerID'],
+        Device,
+        to_string(data['DeviceModel'])
+        ])
 
     # Registrations
     Registration = data['RegistrationID']
@@ -87,9 +88,17 @@ def handle_device(data):
             to_string(data['SourceName']),
             to_string(data['DeviceModel']),
             data['CustomerID'],
-            to_string(data['SerialNumber'])
+            Device
             ])
         pk['Registrations'].add(Registration)
+
+    # Devices
+    if Device != 'NULL':
+        insert_values('Devices', [
+            Device,
+            to_string(data['SerialNumber']),
+            to_string(data['DeviceModel'])
+            ])
 
 def handle_device_model(data):
     # DeviceModels
@@ -108,39 +117,35 @@ def handle_email(data):
 
 
 
-# List of all tables (in no particular order)
+# List of all tables (in order of creation)
 tables = ['Customers', 'EmailAddresses', 'EmailMessages', 'EventTypes', 'Events', 'Links',
     'EventLinkLookUp', 'DeviceModels', 'Devices', 'Purchases', 'Registrations']
-# Dict of files where key=table
-files = {}
-# Dict of existing primary keys (as a single value or tuple) for each table
-pk = {}
+
+files = {}      # Dict of files where key=table
+pk = {}         # Existing primary keys as a single value or tuple
+counts = {}     # Row counts - reset to 0 every 32,000 rows
 
 # Open files and initialize each table
 for t in tables:
     files[t] = open('build/DB-build-%s.sql' % t, 'w+')
-    files[t].write('INSERT INTO %s VALUES\n' % t)
+    start_sql(t)
     pk[t] = set()
+    counts[t] = 0
 
 # Parse the CSV files provided by customer
+print("Parsing: CP_Account.csv")
 parse('data/CP_Account.csv', handle_account)
+
+print("Parsing: CP_Device.csv")
 parse('data/CP_Device.csv', handle_device)
+
+print("Parsing: CP_Device_Model.csv")
 parse('data/CP_Device_Model.csv', handle_device_model)
+
+print("Parsing: CP_Email_Final.csv")
 parse('data/CP_Email_Final.csv', handle_email)
 
 # End files with ; before closing
-for f in files.values():
-    f.seek(f.tell() - 3)
-    f.write(');\n')
-    f.truncate()
-    f.close()
-
-if len(sys.argv) > 1:
-    try:
-        conn = mysql.connector.connect(user='admin', password='admin',
-            host='localhost', database='testing366')
-    except mysql.connector.Error as err:
-        print(err)
-    else:
-        main()
-        conn.close()
+for t in tables:
+    end_sql(t)
+    files[t].close()
