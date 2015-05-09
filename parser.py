@@ -79,6 +79,22 @@ def handle_account(data):
           ])
        pk['EmailAddresses'].add(EmailAddress)
 
+def handle_device_model(data):
+    # Device Model
+    # Device Name
+    # Device Type
+    # Carrier
+
+    # DeviceModels
+    DeviceModel = data['Device Model']
+    if DeviceModel not in pk['DeviceModels']:
+        insert_values('DeviceModels', [
+            to_string(data['Device Model']),
+            to_string(data['Device Name']),
+            to_string(data['Device Type']),
+            to_string(data['Carrier'])
+            ])
+        pk['DeviceModels'].add(DeviceModel)
 
 device_id = 0
 purchase_id = 0
@@ -107,6 +123,19 @@ def handle_device(data):
         Device = str(device_id)
         device_id += 1
 
+    DeviceModel = data['DeviceModel']
+    if DeviceModel not in pk['DeviceModels']:
+        insert_values('DeviceModels', [to_string(DeviceModel), '""', '""', '""'])
+        pk['DeviceModels'].add(DeviceModel)
+
+    # Devices
+    if Device != 'NULL':
+        insert_values('Devices', [
+            Device,
+            to_string(data['SerialNumber']),
+            to_string(data['DeviceModel'])
+            ])
+
     # Purchases
     insert_values('Purchases', [
         str(purchase_id),
@@ -134,31 +163,6 @@ def handle_device(data):
             Device
             ])
         pk['Registrations'].add(Registration)
-
-    # Devices
-    if Device != 'NULL':
-        insert_values('Devices', [
-            Device,
-            to_string(data['SerialNumber']),
-            to_string(data['DeviceModel'])
-            ])
-
-def handle_device_model(data):
-    # Device Model
-    # Device Name
-    # Device Type
-    # Carrier
-
-    # DeviceModels
-    DeviceModel = data['Device Model']
-    if DeviceModel not in pk['DeviceModels']:
-        insert_values('DeviceModels', [
-            to_string(data['Device Model']),
-            to_string(data['Device Name']),
-            to_string(data['Device Type']),
-            to_string(data['Carrier'])
-            ])
-        pk['DeviceModels'].add(DeviceModel)
 
 email_message_id = {}
 
@@ -265,11 +269,11 @@ start_time = time.time()
 print("Parsing: CP_Account.csv")
 parse('data/CP_Account.csv', handle_account)
 
-print("Parsing: CP_Device.csv")
-parse('data/CP_Device.csv', handle_device)
-
 print("Parsing: CP_Device_Model.csv")
 parse('data/CP_Device_Model.csv', handle_device_model)
+
+print("Parsing: CP_Device.csv")
+parse('data/CP_Device.csv', handle_device)
 
 print("Parsing: CP_Email_Final.csv")
 parse('data/CP_Email_Final.csv', handle_email)
