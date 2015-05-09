@@ -1,3 +1,4 @@
+import time
 import sys
 import csv
 
@@ -20,12 +21,11 @@ def to_date(value, fmt):
 # Write dict of values for insert into DB
 # Start a new INSERT statement every 32,000 lines
 def insert_values(table, data):
+    counts[table] += 1
     if counts[table] == ROWS_PER_INSERT:
         end_sql(table)
         start_sql(table)
         counts[table] = 0
-    else:
-        counts[table] += 1
     files[table].write('(%s),\n' % ','.join(data))
 
 def start_sql(table):
@@ -38,6 +38,20 @@ def end_sql(table):
     f.truncate()
 
 def handle_account(data):
+    # CustomerID
+    # EmailID
+    # RegSourceID
+    # RegSourceName
+    # ZIP
+    # State
+    # Gender
+    # IncomeLevel
+    # Permission
+    # Language
+    # RegDate
+    # DomainName
+    # CustomerTier
+
     # Customers
     Customer = data['CustomerID']
     if Customer not in pk['Customers']:
@@ -67,9 +81,25 @@ def handle_account(data):
 
 
 device_id = 0
+purchase_id = 0
 
 def handle_device(data):
-    global device_id;
+    global device_id
+    global purchase_id
+
+    # CustomerID
+    # SourceID
+    # SourceName
+    # DeviceModel
+    # SerialNumber
+    # PurchaseDate
+    # PurchaseStoreName
+    # PurchaseStoreState
+    # PurchaseStoreCity
+    # Ecomm
+    # RegistrationDate
+    # NumberOfRegistrations
+    # RegistrationID
 
     Device = 'NULL'
 
@@ -79,6 +109,7 @@ def handle_device(data):
 
     # Purchases
     insert_values('Purchases', [
+        str(purchase_id),
         to_date(data['PurchaseDate'], '%m/%d/%Y'),
         to_string(data['PurchaseStoreName']),
         to_string(data['PurchaseStoreCity']),
@@ -88,6 +119,7 @@ def handle_device(data):
         Device,
         to_string(data['DeviceModel'])
         ])
+    purchase_id += 1
 
     # Registrations
     Registration = data['RegistrationID']
@@ -112,6 +144,11 @@ def handle_device(data):
             ])
 
 def handle_device_model(data):
+    # Device Model
+    # Device Name
+    # Device Type
+    # Carrier
+
     # DeviceModels
     DeviceModel = data['Device Model']
     if DeviceModel not in pk['DeviceModels']:
@@ -123,11 +160,90 @@ def handle_device_model(data):
             ])
         pk['DeviceModels'].add(DeviceModel)
 
+email_message_id = {}
+
 def handle_email(data):
-    pass
+    global email_message_id
 
+    # EmailID
+    # AudienceSegment
+    # EmailCampaignName
+    # EmailVersion
+    # SubjectLineCode
+    # Fulldate
+    # DeploymentID
+    # EmailEventKey
+    # EmailEventType
+    # EmailEventDateTime
+    # HyperlinkName
+    # EmailURL
+    # EmailID
 
+    EmailMessageID = str(len(email_message_id.keys()))
 
+    # EmailMessages
+    EmailMessage = (data['EmailCampaignName'], data['EmailVersion'],
+        data['AudienceSegment'], data['SubjectLineCode'])
+    if EmailMessage not in pk['EmailMessages']:
+        insert_values('EmailMessages', [
+            EmailMessageID,
+            to_string(data['AudienceSegment']),
+            to_string(data['EmailVersion']),
+            to_string(data['SubjectLineCode']),
+            data['EmailID'],
+            data['DeploymentID'],
+            to_date(data['Fulldate'], '%m/%d/%Y'),
+            to_string(data['EmailCampaignName'])
+            ])
+        pk['EmailMessages'].add(EmailMessage)
+        email_message_id[EmailMessage] = EmailMessageID
+    else:
+        EmailMessageID = str(email_message_id[EmailMessage])
+
+    # EventTypes
+    EventType = data['EmailEventKey']
+    if EventType not in pk['EventTypes']:
+        insert_values('EventTypes', [
+            data['EmailEventKey'],
+            to_string(data['EmailEventType'])
+            ])
+        pk['EventTypes'].add(EventType)
+
+    # Events
+    Event = (data['EmailID'], EmailMessageID, data['EmailEventKey'])
+    if Event not in pk['Events']:
+        insert_values('Events', [
+            to_date(data['EmailEventDateTime'], '%m/%d/%y %l:%i %p'),
+            data['EmailEventKey'],
+            data['EmailID'],
+            EmailMessageID
+            ])
+        pk['Events'].add(Event)
+
+    # Links
+    Link = (data['HyperlinkName'], data['EmailURL'], EmailMessageID)
+    if data['HyperlinkName'] and data['EmailURL'] and Link not in pk['Links']:
+        insert_values('Links', [
+            to_string(data['HyperlinkName']),
+            to_string(data['EmailURL']),
+            EmailMessageID
+            ])
+        pk['Links'].add(Link)
+
+    # EventLinkLookUp
+    EventLink = (data['HyperlinkName'], data['EmailURL'], EmailMessageID,
+        data['EmailID'], data['EmailEventKey'])
+    if data['HyperlinkName'] and data['EmailURL'] and EventLink not in pk['EventLinkLookUp']:
+        insert_values('EventLinkLookUp', [
+            to_string(data['HyperlinkName']),
+            to_string(data['EmailURL']),
+            EmailMessageID,
+            data['EmailID'],
+            data['EmailEventKey']
+            ])
+        pk['EventLinkLookUp'].add(EventLink)
+
+############################################
 # List of all tables (in order of creation)
 tables = ['Customers', 'EmailAddresses', 'EmailMessages', 'EventTypes', 'Events', 'Links',
     'EventLinkLookUp', 'DeviceModels', 'Devices', 'Purchases', 'Registrations']
@@ -144,6 +260,8 @@ for t in tables:
     counts[t] = 0
 
 # Parse the CSV files provided by customer
+start_time = time.time()
+
 print("Parsing: CP_Account.csv")
 parse('data/CP_Account.csv', handle_account)
 
@@ -155,6 +273,10 @@ parse('data/CP_Device_Model.csv', handle_device_model)
 
 print("Parsing: CP_Email_Final.csv")
 parse('data/CP_Email_Final.csv', handle_email)
+
+total_time = time.time() - start_time
+
+print("(%.2f sec)" % total_time)
 
 # End files with ; before closing
 for t in tables:

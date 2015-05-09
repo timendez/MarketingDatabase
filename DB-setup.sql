@@ -21,19 +21,20 @@ REFERENCES Customers(CustomerID)
 );
 
 CREATE TABLE IF NOT EXISTS EmailMessages (
-EmailMessageID BIGINT AUTO_INCREMENT,
+EmailMessageID INT,
 Audience VARCHAR(64) NOT NULL,
 Version VARCHAR(64) NOT NULL,
-SubjectLine VARCHAR(64) NOT NULL,
+SubjectLine VARCHAR(4) NOT NULL,
 EmailID INT NOT NULL,
 DeploymentID INT NOT NULL,
+DeploymentDate DATE NOT NULL,
 CampaignName VARCHAR(64) NOT NULL,
 CONSTRAINT PK_EmailMessageID PRIMARY KEY (EmailMessageID),
 CONSTRAINT FK_EmailID FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID)
 );
 
-CREATE TABLE IF NOT EXISTS EventTypes(
+CREATE TABLE IF NOT EXISTS EventTypes (
 EventTypeID INT,
 EventTypeName VARCHAR(64),
 CONSTRAINT PK_EventTypes PRIMARY KEY (EventTypeID)
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS Events (
 EventDate DATETIME NOT NULL,
 EventTypeID INT NOT NULL,
 EmailID INT,
-EmailMessageID BIGINT,
+EmailMessageID INT,
 CONSTRAINT PK_Events PRIMARY KEY (EmailID, EmailMessageID, EventTypeID),
 CONSTRAINT FK_EventType FOREIGN KEY (EventTypeID)
 REFERENCES EventTypes(EventTypeID),
@@ -54,18 +55,18 @@ REFERENCES EmailMessages(EmailMessageID)
 );
 
 CREATE TABLE IF NOT EXISTS Links (
-LinkName VARCHAR(64),
-LinkURL VARCHAR(128),
-EmailMessageID BIGINT,
+LinkName VARCHAR(128),
+LinkURL VARCHAR(256),
+EmailMessageID INT,
 CONSTRAINT PK_Links PRIMARY KEY (LinkName, LinkURL, EmailMessageID),
 CONSTRAINT FK_Links FOREIGN KEY (EmailMessageID)
 REFERENCES EmailMessages (EmailMessageID)
 );
 
-CREATE TABLE IF NOT EXISTS EventLinkLookUp(
-LinkName VARCHAR(64),
-LinkURL VARCHAR(128),
-EmailMessageID BIGINT,
+CREATE TABLE IF NOT EXISTS EventLinkLookUp (
+LinkName VARCHAR(128),
+LinkURL VARCHAR(256),
+EmailMessageID INT,
 EmailID INT,
 EventTypeID INT,
 CONSTRAINT PK_EventLinkLookUp PRIMARY KEY (EmailID, EmailMessageID, EventTypeID, LinkName, LinkURL),
@@ -87,7 +88,7 @@ Carrier VARCHAR(64),
 CONSTRAINT PK_DeviceModel PRIMARY KEY (DeviceModel)
 );
 
-CREATE TABLE IF NOT EXISTS Devices(
+CREATE TABLE IF NOT EXISTS Devices (
 DeviceID INT,
 SerialNumber VARCHAR(64),
 DeviceModel VARCHAR(64) NOT NULL,
@@ -97,7 +98,7 @@ REFERENCES DeviceModels(DeviceModel)
 );
 
 CREATE TABLE IF NOT EXISTS Purchases (
-PurchaseID INT AUTO_INCREMENT,
+PurchaseID INT,
 PurchaseDate DATETIME,
 PurchaseStoreName VARCHAR(64),
 PurchaseStoreCity VARCHAR(64),
