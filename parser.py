@@ -60,6 +60,7 @@ def handle_account(data):
        insert_values('EmailAddresses', [
           to_string(data['EmailID']),
           to_string(data['EmailDomain'])
+          to_string(data['CustomerID'])
           ])
        pk['EmailAddresses'].add(EmailAddress)
     
