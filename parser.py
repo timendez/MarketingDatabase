@@ -54,6 +54,17 @@ def handle_account(data):
             to_string(data['CustomerTier']),
             ])
         pk['Customers'].add(Customer)
+        
+    # EmailAddresses
+    EmailAddress = data['EmailID']
+    if EmailAddress not in pk['EmailAddresses']:
+       insert_values('EmailAddresses', [
+          to_string(data['EmailID']),
+          to_string(data['EmailDomain'])
+          to_string(data['CustomerID'])
+          ])
+       pk['EmailAddresses'].add(EmailAddress)
+    
 
 device_id = 0
 
@@ -112,7 +123,7 @@ def handle_device_model(data):
             ])
         pk['DeviceModels'].add(DeviceModel)
 
-def handle_email(data):
+def handle_email(data):    
     pass
 
 
