@@ -187,7 +187,7 @@ def handle_email(data):
 
     # EmailMessages
     EmailMessage = (data['EmailCampaignName'], data['EmailVersion'],
-        data['AudienceSegment'], data['SubjectLineCode'])
+        data['AudienceSegment'], data['SubjectLineCode'], data['EmailID'])
     if EmailMessage not in pk['EmailMessages']:
         insert_values('EmailMessages', [
             EmailMessageID,
