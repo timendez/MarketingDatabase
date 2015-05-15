@@ -4,6 +4,7 @@ source DB-setup.sql
 source build/DB-build-Customers.sql
 source build/DB-build-EmailAddresses.sql
 source build/DB-build-EmailMessages.sql
+source build/DB-build-EmailMessagesSent.sql
 source build/DB-build-EventTypes.sql
 source build/DB-build-Events.sql
 source build/DB-build-Links.sql

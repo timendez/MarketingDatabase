@@ -26,11 +26,19 @@ EmailMessageID INT,
 Audience VARCHAR(64) NOT NULL,
 Version VARCHAR(64) NOT NULL,
 SubjectLine VARCHAR(4) NOT NULL,
-EmailID INT NOT NULL,
+CampaignName VARCHAR(64) NOT NULL,
+CONSTRAINT PK_EmailMessageID PRIMARY KEY(EmailMessageID),
+CONSTRAINT UC_EmailMessages UNIQUE (Audience, Version, SubjectLine, CampaignName)
+);
+
+CREATE TABLE IF NOT EXISTS EmailMessagesSent (
+EmailMessageID INT,
+EmailID INT,
 DeploymentID INT NOT NULL,
 DeploymentDate DATE NOT NULL,
-CampaignName VARCHAR(64) NOT NULL,
-CONSTRAINT PK_EmailMessageID PRIMARY KEY (EmailMessageID),
+CONSTRAINT PK_EmailMessagesSent PRIMARY KEY (EmailMessageID, EmailID),
+CONSTRAINT FK_EmailMessageID FOREIGN KEY (EmailMessageID)
+REFERENCES EmailMessages(EmailMessageID),
 CONSTRAINT FK_EmailID FOREIGN KEY (EmailID)
 REFERENCES EmailAddresses(EmailID)
 );
@@ -49,10 +57,8 @@ EmailMessageID INT,
 CONSTRAINT PK_Events PRIMARY KEY (EmailID, EmailMessageID, EventTypeID),
 CONSTRAINT FK_EventType FOREIGN KEY (EventTypeID)
 REFERENCES EventTypes(EventTypeID),
-CONSTRAINT FK_Emails FOREIGN KEY (EmailID)
-REFERENCES EmailAddresses(EmailID),
-CONSTRAINT FK_EmailMessages FOREIGN KEY (EmailMessageID)
-REFERENCES EmailMessages(EmailMessageID)
+CONSTRAINT FK_EmailMessagesSent FOREIGN KEY (EmailMessageID, EmailID)
+REFERENCES EmailMessagesSent(EmailMessageID, EmailID)
 );
 
 CREATE TABLE IF NOT EXISTS Links (
@@ -71,10 +77,8 @@ EmailMessageID INT,
 EmailID INT,
 EventTypeID INT,
 CONSTRAINT PK_EventLinkLookUp PRIMARY KEY (EmailID, EmailMessageID, EventTypeID, LinkName, LinkURL),
-CONSTRAINT FK_EventLinkLookUpEA FOREIGN KEY (EmailID)
-REFERENCES EmailAddresses(EmailID),
-CONSTRAINT FK_EventLinkLookUpEM FOREIGN KEY (EmailMessageID)
-REFERENCES EmailMessages(EmailMessageID),
+CONSTRAINT FK_EventLinkLookUpEMS FOREIGN KEY (EmailMessageID, EmailID)
+REFERENCES EmailMessagesSent(EmailMessageID, EmailID),
 CONSTRAINT FK_EventLookUpLink FOREIGN KEY (LinkName, LinkURL)
 REFERENCES Links(LinkName, LinkURL),
 CONSTRAINT FK_EventLinkLookUpET FOREIGN KEY (EventTypeID)

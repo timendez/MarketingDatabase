@@ -187,22 +187,30 @@ def handle_email(data):
 
     # EmailMessages
     EmailMessage = (data['EmailCampaignName'], data['EmailVersion'],
-        data['AudienceSegment'], data['SubjectLineCode'], data['EmailID'])
+        data['AudienceSegment'], data['SubjectLineCode'])
     if EmailMessage not in pk['EmailMessages']:
         insert_values('EmailMessages', [
             EmailMessageID,
             to_string(data['AudienceSegment']),
             to_string(data['EmailVersion']),
             to_string(data['SubjectLineCode']),
-            data['EmailID'],
-            data['DeploymentID'],
-            to_date(data['Fulldate'], '%m/%d/%Y'),
             to_string(data['EmailCampaignName'])
             ])
         pk['EmailMessages'].add(EmailMessage)
         email_message_id[EmailMessage] = EmailMessageID
     else:
         EmailMessageID = str(email_message_id[EmailMessage])
+
+    # EmailMessagesSent
+    EmailMessageSent = (EmailMessageID, data['EmailID'])
+    if EmailMessageSent not in pk['EmailMessagesSent']:
+        insert_values('EmailMessagesSent', [
+            EmailMessageID,
+            data['EmailID'],
+            data['DeploymentID'],
+            to_date(data['Fulldate'], '%m/%d/%Y')
+            ])
+        pk['EmailMessagesSent'].add(EmailMessageSent)
 
     # EventTypes
     EventType = data['EmailEventKey']
@@ -249,12 +257,13 @@ def handle_email(data):
 
 ############################################
 # List of all tables (in order of creation)
-tables = ['Customers', 'EmailAddresses', 'EmailMessages', 'EventTypes', 'Events', 'Links',
-    'EventLinkLookUp', 'DeviceModels', 'Devices', 'Purchases', 'Registrations']
+tables = ['Customers', 'EmailAddresses', 'EmailMessages', 'EmailMessagesSent',
+    'EventTypes', 'Events', 'Links', 'EventLinkLookUp', 'DeviceModels', 'Devices',
+    'Purchases', 'Registrations']
 
 files = {}      # Dict of files where key=table
 pk = {}         # Existing primary keys as a single value or tuple
-counts = {}     # Row counts - reset to 0 every 32,000 rows
+counts = {}     # Row counts
 
 # Open files and initialize each table
 for t in tables:
