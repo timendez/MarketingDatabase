@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Customers (
-CustomerID INT PRIMARY KEY,
+CustomerID INT,
 RegSourceID INT,
 RegSourceName VARCHAR(64),
 ZIP CHAR(5),
@@ -8,7 +8,8 @@ Gender CHAR(1),
 IncomeLevel VARCHAR(32),
 Permission BOOLEAN,
 Language CHAR(2),
-CustomerTier CHAR(3)
+CustomerTier CHAR(3),
+CONSTRAINT PK_CustomerID PRIMARY KEY (CustomerID)
 );
 
 CREATE TABLE IF NOT EXISTS EmailAddresses (
@@ -90,7 +91,7 @@ CONSTRAINT PK_DeviceModel PRIMARY KEY (DeviceModel)
 
 CREATE TABLE IF NOT EXISTS Devices (
 DeviceID INT,
-SerialNumber VARCHAR(64),
+SerialNumber VARCHAR(64) NOT NULL,
 DeviceModel VARCHAR(64) NOT NULL,
 CONSTRAINT PK_DeviceID PRIMARY KEY (DeviceID),
 CONSTRAINT FK_DeviceModel FOREIGN KEY (DeviceModel)
