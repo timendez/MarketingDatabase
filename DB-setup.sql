@@ -72,7 +72,7 @@ REFERENCES EmailMessages (EmailMessageID)
 
 CREATE TABLE IF NOT EXISTS EventLinkLookUp (
 LinkName VARCHAR(128),
-LinkURL VARCHAR(256),
+LinkURL VARCHAR(255),
 EmailMessageID INT,
 EmailID INT,
 EventTypeID INT,
