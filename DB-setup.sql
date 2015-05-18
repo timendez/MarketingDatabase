@@ -63,7 +63,7 @@ REFERENCES EmailMessagesSent(EmailMessageID, EmailID)
 
 CREATE TABLE IF NOT EXISTS Links (
 LinkName VARCHAR(128),
-LinkURL VARCHAR(256),
+LinkURL VARCHAR(255),
 EmailMessageID INT,
 CONSTRAINT PK_Links PRIMARY KEY (LinkName, LinkURL, EmailMessageID),
 CONSTRAINT FK_Links FOREIGN KEY (EmailMessageID)
