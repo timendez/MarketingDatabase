@@ -16,7 +16,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 		ON EmailMessages.EmailMessageID = EmailMessagesSent.EmailMessageID
 		GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate
 	) AS AllEmails LEFT JOIN (
-		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID, NumEmails AS EmailsSent
+		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsSent
 		FROM EmailCampaignPerformanceTemp 
 		WHERE EventTypeID = 20
 	) AS EmailsSent 
