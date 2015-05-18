@@ -1,10 +1,9 @@
 CREATE TABLE EmailCampaignPerformanceTemp AS (
-	SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, Events.EventTypeID, EventTypeName, COUNT(*) AS NumEmails
+	SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, Events.EventTypeID, COUNT(*) AS NumEmails
 	FROM EmailMessagesSent LEFT JOIN EmailMessages
 	ON EmailMessages.EmailMessageID = EmailMessagesSent.EmailMessageID  LEFT JOIN Events
-	ON Events.EmailMessageID = EmailMessagesSent.EmailMessageID AND EmailMessagesSent.EmailID = Events.EmailID LEFT JOIN EventTypes
-	ON Events.EventTypeID = EventTypes.EventTypeID
-	GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID, EventTypeName
+	ON Events.EmailMessageID = EmailMessagesSent.EmailMessageID AND EmailMessagesSent.EmailID = Events.EmailID 
+	GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID
 );
 
 CREATE TABLE EmailCampaignPerformance AS (
@@ -17,7 +16,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 		ON EmailMessages.EmailMessageID = EmailMessagesSent.EmailMessageID
 		GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate
 	) AS AllEmails LEFT JOIN (
-		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID, EventTypeName, NumEmails AS EmailsSent
+		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID, NumEmails AS EmailsSent
 		FROM EmailCampaignPerformanceTemp 
 		WHERE EventTypeID = 20
 	) AS EmailsSent 
