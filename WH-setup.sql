@@ -19,5 +19,5 @@ CREATE TABLE RegistrationsXCustomersXDevices (
     Year INT,
     Permission BOOLEAN,
     Carrier VARCHAR(64),
-    Registrations INT
+    DeviceModel VARCHAR(64)
 );

@@ -82,8 +82,9 @@ DROP TABLE EmailCampaignPerformanceTemp;
 CREATE TABLE RegistrationsXCustomersXDevices
 AS (
     SELECT Registrations.CustomerID AS CustomerID, State,
-        MONTH(RegistrationDate) AS Month, YEAR(RegistrationDate) AS Year,
-        Permission, Carrier, Devices.DeviceModel FROM Registrations
+        DATE_FORMAT(RegistrationDate, '%M') AS Month, YEAR(RegistrationDate) AS Year,
+        Permission, Carrier, Devices.DeviceModel
+    FROM Registrations
     LEFT JOIN Customers ON Registrations.CustomerID = Customers.CustomerID
     LEFT JOIN Devices ON Registrations.DeviceID = Devices.DeviceID
     LEFT JOIN DeviceModels ON Devices.DeviceModel = DeviceModels.DeviceModel

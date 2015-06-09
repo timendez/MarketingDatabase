@@ -18,5 +18,6 @@ ORDER BY State;
 -- Device Registration Report --
 SELECT Carrier, Month, DeviceModel, COUNT(CustomerID) AS "Number of Customers"
 FROM RegistrationsXCustomersXDevices
+WHERE DeviceModel IS NOT NULL
 GROUP BY Carrier, Month, DeviceModel
 ORDER BY Carrier;
