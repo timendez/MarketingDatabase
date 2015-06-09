@@ -2,12 +2,12 @@ CREATE TABLE EmailCampaignPerformanceTemp AS (
 	SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, Events.EventTypeID, COUNT(*) AS NumEmails
 	FROM EmailMessagesSent LEFT JOIN EmailMessages
 	ON EmailMessages.EmailMessageID = EmailMessagesSent.EmailMessageID  LEFT JOIN Events
-	ON Events.EmailMessageID = EmailMessagesSent.EmailMessageID AND EmailMessagesSent.EmailID = Events.EmailID 
+	ON Events.EmailMessageID = EmailMessagesSent.EmailMessageID AND EmailMessagesSent.EmailID = Events.EmailID
 	GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate, EventTypeID
 );
 
 CREATE TABLE EmailCampaignPerformance AS (
-	SELECT AllEmails.CampaignName, AllEmails.Audience, AllEmails.Version, AllEmails.SubjectLine, AllEmails.DeploymentDate, 
+	SELECT AllEmails.CampaignName, AllEmails.Audience, AllEmails.Version, AllEmails.SubjectLine, AllEmails.DeploymentDate,
 	 IFNULL(EmailsSent, 0) AS EmailsSent, IFNULL(EmailsBounced, 0) AS EmailsBounced, IFNULL(EmailsComplained, 0) AS EmailsComplained,
 	 IFNULL(EmailsClicked, 0) AS EmailsClicked, IFNULL(EmailsOpened, 0) AS EmailsOpened, IFNULL(EmailsUnsubscribed, 0) AS EmailsUnsubscribed
 	FROM (
@@ -17,16 +17,16 @@ CREATE TABLE EmailCampaignPerformance AS (
 		GROUP BY CampaignName, Audience, Version, SubjectLine, DeploymentDate
 	) AS AllEmails LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsSent
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID = 20
-	) AS EmailsSent 
+	) AS EmailsSent
 	ON AllEmails.CampaignName = EmailsSent.CampaignName
 	AND AllEmails.Audience = EmailsSent.Audience
 	AND AllEmails.Version = EmailsSent.Version
 	AND AllEmails.SubjectLine = EmailsSent.SubjectLine
 	AND AllEmails.DeploymentDate = EmailsSent.DeploymentDate LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, SUM(NumEmails) AS EmailsBounced
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID != 0
 		AND EventTypeID != 2
 		AND EventTypeID != 11
@@ -40,7 +40,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 	AND AllEmails.SubjectLine = EmailsBounced.SubjectLine
 	AND AllEmails.DeploymentDate = EmailsBounced.DeploymentDate LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsComplained
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID = 11
 	) AS EmailsComplained
 	ON AllEmails.CampaignName = EmailsComplained.CampaignName
@@ -49,7 +49,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 	AND AllEmails.SubjectLine = EmailsComplained.SubjectLine
 	AND AllEmails.DeploymentDate = EmailsComplained.DeploymentDate LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsClicked
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID = 0
 	) AS EmailsClicked
 	ON AllEmails.CampaignName = EmailsClicked.CampaignName
@@ -58,7 +58,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 	AND AllEmails.SubjectLine = EmailsClicked.SubjectLine
 	AND AllEmails.DeploymentDate = EmailsClicked.DeploymentDate LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsOpened
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID = 2
 	) AS EmailsOpened
 	ON AllEmails.CampaignName = EmailsOpened.CampaignName
@@ -67,7 +67,7 @@ CREATE TABLE EmailCampaignPerformance AS (
 	AND AllEmails.SubjectLine = EmailsOpened.SubjectLine
 	AND AllEmails.DeploymentDate = EmailsOpened.DeploymentDate LEFT JOIN (
 		SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, NumEmails AS EmailsUnsubscribed
-		FROM EmailCampaignPerformanceTemp 
+		FROM EmailCampaignPerformanceTemp
 		WHERE EventTypeID = 37
 	) AS EmailsUnsubscribed
 	ON AllEmails.CampaignName = EmailsUnsubscribed.CampaignName
@@ -77,9 +77,14 @@ CREATE TABLE EmailCampaignPerformance AS (
 	AND AllEmails.DeploymentDate = EmailsUnsubscribed.DeploymentDate
 );
 
-DROP TABLE EmailCampaignPerformanceTemp;	
+DROP TABLE EmailCampaignPerformanceTemp;
 
-
-
-
-
+CREATE TABLE RegistrationsXCustomersXDevices
+AS (
+    SELECT Registrations.CustomerID AS CustomerID, State,
+        MONTH(RegistrationDate) AS Month, YEAR(RegistrationDate) AS Year,
+        Permission, Carrier, Devices.DeviceModel FROM Registrations
+    LEFT JOIN Customers ON Registrations.CustomerID = Customers.CustomerID
+    LEFT JOIN Devices ON Registrations.DeviceID = Devices.DeviceID
+    LEFT JOIN DeviceModels ON Devices.DeviceModel = DeviceModels.DeviceModel
+);

@@ -1,5 +1,12 @@
 -- Email Campaign Performance --
-SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate, EmailsSent - EmailsBounced AS EmailsDelivered, EmailsOpened, EmailsClicked, EmailsOpened/(EmailsSent - EmailsBounced) AS OpenRate, EmailsClicked/EmailsOpened AS ClickToOpenRate, EmailsClicked/(EmailsSent - EmailsBounced) AS ClickRate, EmailsUnsubscribed/EmailsOpened AS UnsubRate
+SELECT CampaignName, Audience, Version, SubjectLine, DeploymentDate,
+    (EmailsSent - EmailsBounced) AS EmailsDelivered,
+    EmailsOpened,
+    EmailsClicked,
+    (EmailsOpened / (EmailsSent - EmailsBounced)) AS OpenRate,
+    (EmailsClicked / EmailsOpened) AS ClickToOpenRate,
+    (EmailsClicked / (EmailsSent - EmailsBounced)) AS ClickRate,
+    (EmailsUnsubscribed / EmailsOpened) AS UnsubRate
 FROM EmailCampaignPerformance;
 
 -- Account Registration Report --
