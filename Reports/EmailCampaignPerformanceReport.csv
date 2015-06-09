@@ -1,3 +1,4 @@
+CampaignName,Audience,Version,SubjectLine,DeploymentDate,EmailsDelivered,EmailsOpened,EmailsClicked,OpenRate,ClickToOpenRate,ClickRate,UnsubRate
 "57_BRX Welcome Stream","","","","2013-03-30","0","1","0","NULL","0.0000","NULL","0.0000"
 "57_BRX Welcome Stream","","","","2013-04-29","-1","0","0","0.0000","NULL","0.0000","NULL"
 "57_BRX Welcome Stream","","","","2013-05-26","2","0","0","0.0000","NULL","0.0000","NULL"
