@@ -17,7 +17,7 @@ GROUP BY State, MonthName, Month, Year, Permission
 ORDER BY Year DESC, Month DESC, State, Permission;
 
 -- Device Registration Report --
-SELECT MonthName, Month, Year, Carrier, DeviceModel, NumCustomers
+SELECT Carrier, MonthName, Month, Year, DeviceModel, NumCustomers
 FROM AccountDeviceRegistrations
 GROUP BY Carrier, MonthName, Month, Year, DeviceModel
-ORDER BY Year DESC, Month DESC, Carrier, DeviceModel;
+ORDER BY Carrier, Year DESC, Month DESC;
