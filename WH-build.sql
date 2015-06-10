@@ -79,13 +79,17 @@ CREATE TABLE EmailCampaignPerformance AS (
 
 DROP TABLE EmailCampaignPerformanceTemp;
 
-CREATE TABLE RegistrationsXCustomersXDevices
+CREATE TABLE AccountDeviceRegistrations
 AS (
     SELECT Registrations.CustomerID AS CustomerID, State,
-        DATE_FORMAT(RegistrationDate, '%M') AS Month, YEAR(RegistrationDate) AS Year,
-        Permission, Carrier, Devices.DeviceModel
+        DATE_FORMAT(RegistrationDate, '%M') AS MonthName,
+        MONTH(RegistrationDate) AS Month,
+        YEAR(RegistrationDate) AS Year,
+        Permission, Carrier, Devices.DeviceModel,
+        COUNT(*) AS NumCustomers
     FROM Registrations
     LEFT JOIN Customers ON Registrations.CustomerID = Customers.CustomerID
     LEFT JOIN Devices ON Registrations.DeviceID = Devices.DeviceID
     LEFT JOIN DeviceModels ON Devices.DeviceModel = DeviceModels.DeviceModel
+    GROUP BY State, Carrier, MonthName, Month, Year, Permission, DeviceModel
 );

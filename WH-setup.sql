@@ -12,10 +12,11 @@ CREATE TABLE EmailCampaignPerformance (
     EmailsUnsubscribed INT
 );
 
-CREATE TABLE RegistrationsXCustomersXDevices (
+CREATE TABLE AccountDeviceRegistrations (
     CustomerID INT,
     State CHAR(64),
-    Month CHAR(16),
+    MonthName CHAR(16),
+    Month INT,
     Year INT,
     Permission BOOLEAN,
     Carrier VARCHAR(64),
